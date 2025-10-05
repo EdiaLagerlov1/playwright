@@ -1,0 +1,26 @@
+{
+  "name": "playwright",
+  "version": "1.0.0",
+  "description": "This directory contains automated end-to-end tests for the Log Analyzer web application using Playwright.",
+  "main": "playwright.config.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/EdiaLagerlov1/playwright.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/EdiaLagerlov1/playwright/issues"
+  },
+  "homepage": "https://github.com/EdiaLagerlov1/playwright#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.55.1"
+  }
+}
