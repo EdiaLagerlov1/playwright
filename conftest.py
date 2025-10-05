@@ -5,7 +5,7 @@ from playwright.sync_api import sync_playwright
 def page():
     """Provide a Playwright page fixture for tests"""
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=False)  # Set to True for headless mode
+        browser = p.chromium.launch(headless=True)  # Set to True for headless mode
         page = browser.new_page()
         yield page
         browser.close()
