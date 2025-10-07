@@ -24,6 +24,9 @@ jobs:
         python -m pip install --upgrade pip
         pip install pytest-playwright pytest-html
         playwright install --with-deps
+
+    - name: Create test results directory
+      run: mkdir -p test-results
     
     - name: Run tests
       run: pytest tests/
