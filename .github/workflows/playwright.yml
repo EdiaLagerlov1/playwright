@@ -26,19 +26,24 @@ jobs:
           pip install pytest-playwright pytest-html
           playwright install --with-deps
 
-      - name: Ensure test-results directory exists
-        run: mkdir -p test-results
-
-      - name: Debug working directory (optional)
-        run: pwd && ls -R
+      - name: Debug environment
+        run: |
+          echo "=== Debug Info ==="
+          echo "Workspace: $GITHUB_WORKSPACE"
+          echo "Current dir: $(pwd)"
+          echo "Contents:"
+          ls -R
 
       - name: Run Playwright tests
         run: |
-          pytest tests/ --html=test-results/report.html --self-contained-html -v
+          mkdir -p $GITHUB_WORKSPACE/test-results
+          pytest $GITHUB_WORKSPACE/tests/ \
+            --html=$GITHUB_WORKSPACE/test-results/report.html \
+            --self-contained-html -v
 
       - name: Upload test results
         uses: actions/upload-artifact@v4
         if: always()
         with:
           name: playwright-results
-          path: test-results/
+          path: $GITHUB_WORKSPACE/test-results/
