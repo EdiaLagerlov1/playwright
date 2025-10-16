@@ -11,37 +11,55 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
-      
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install pytest-playwright pytest-html
           playwright install --with-deps
-      
-      - name: Verify and prepare test-results directory
+
+      - name: Prepare test-results directory and debug env
         run: |
-          mkdir -p test-results
-          chmod -R 755 test-results
-          echo "test-results directory prepared"
-          ls -la test-results || true
-      
-      - name: Run Playwright tests
+          echo "GITHUB_WORKSPACE=${GITHUB_WORKSPACE:-$PWD}"
+          mkdir -p "${GITHUB_WORKSPACE}/test-results"
+          chmod -R 755 "${GITHUB_WORKSPACE}/test-results"
+          echo "Before tests, listing workspace root and test-results:"
+          pwd
+          ls -la "${GITHUB_WORKSPACE}" | sed -n '1,200p'
+          ls -la "${GITHUB_WORKSPACE}/test-results" || true
+
+      - name: Verify pytest and pytest-html
         run: |
+          python -V
+          pip show pytest pytest-html || true
+          pytest --version
+          pytest --help | sed -n '1,200p'
+
+      - name: Run Playwright pytest with absolute html path and debug
+        run: |
+          set -o pipefail
+          REPORT="${GITHUB_WORKSPACE}/test-results/report.html"
+          echo "Writing HTML report to: $REPORT"
           pytest tests/ \
-            --html=test-results/report.html \
-            --self-contained-html -v
+            --html="$REPORT" \
+            --self-contained-html -v | sed -n '1,400p'
+          echo "Exit code: $?"
           echo "After pytest, listing test-results:"
-          ls -la test-results || true
-      
+          ls -la "${GITHUB_WORKSPACE}/test-results" || true
+          echo "Full repo tree (top 200 lines):"
+          ls -R "${GITHUB_WORKSPACE}" | sed -n '1,200p'
+          echo "Find any HTML under workspace:"
+          find "${GITHUB_WORKSPACE}" -type f -iname '*.html' -print || true
+
       - name: Upload test results
         uses: actions/upload-artifact@v4
         if: always()
         with:
           name: playwright-results
-          path: test-results/
+          path: test-results/**    # include files inside the directory
           retention-days: 30
