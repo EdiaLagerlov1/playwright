@@ -38,23 +38,28 @@ jobs:
           python -V
           pip show pytest pytest-html || true
           pytest --version
-          pytest --help | sed -n '1,200p'
 
-      - name: Run Playwright pytest with absolute html path and debug
+      - name: Run Playwright tests (ensure test-results exists immediately before pytest)
         run: |
-          set -o pipefail
+          set -o pipefail -x
+          # Make sure test-results exists in the very same step where pytest runs
+          mkdir -p "${GITHUB_WORKSPACE}/test-results"
+          chmod -R 755 "${GITHUB_WORKSPACE}/test-results"
           REPORT="${GITHUB_WORKSPACE}/test-results/report.html"
           echo "Writing HTML report to: $REPORT"
           pytest tests/ \
             --html="$REPORT" \
-            --self-contained-html -v | sed -n '1,400p'
-          echo "Exit code: $?"
+            --self-contained-html -v
+          RC=$? || true
+          echo "pytest exit code: $RC"
           echo "After pytest, listing test-results:"
           ls -la "${GITHUB_WORKSPACE}/test-results" || true
-          echo "Full repo tree (top 200 lines):"
-          ls -R "${GITHUB_WORKSPACE}" | sed -n '1,200p'
+          echo "Full repo tree (top 300 lines):"
+          ls -R "${GITHUB_WORKSPACE}" | sed -n '1,300p'
           echo "Find any HTML under workspace:"
           find "${GITHUB_WORKSPACE}" -type f -iname '*.html' -print || true
+          # return pytest's exit code so the step behaves the same as before
+          exit $RC
 
       - name: Upload test results
         uses: actions/upload-artifact@v4
