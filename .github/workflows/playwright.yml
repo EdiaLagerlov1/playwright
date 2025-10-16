@@ -25,15 +25,18 @@ jobs:
       
       - name: Verify and prepare test-results directory
         run: |
-          ls -la test-results/
-          chmod -R 755 test-results/
-          echo "Directory is ready"
+          mkdir -p test-results
+          chmod -R 755 test-results
+          echo "test-results directory prepared"
+          ls -la test-results || true
       
       - name: Run Playwright tests
         run: |
           pytest tests/ \
             --html=test-results/report.html \
             --self-contained-html -v
+          echo "After pytest, listing test-results:"
+          ls -la test-results || true
       
       - name: Upload test results
         uses: actions/upload-artifact@v4
